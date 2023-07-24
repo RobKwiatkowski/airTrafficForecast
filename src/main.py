@@ -2,23 +2,24 @@ import keras
 import mlflow.keras
 import pandas as pd
 import tensorflow as tf
-from keras.layers import (LSTM, Dense, Dropout, LeakyReLU, RepeatVector,
-                          TimeDistributed)
+from keras.layers import LSTM, Dense, Dropout, LeakyReLU, RepeatVector, TimeDistributed
 from keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
 
 from utils import plot_validation, train_val_split
 
 PAX = pd.read_csv("air-traffic-passenger-statistics.csv")
-PAX.loc[:, "Activity Period"] = pd.to_datetime(PAX.loc[:, "Activity Period"].astype(str), format="%Y%m")
+PAX.loc[:, "Activity Period"] = pd.to_datetime(
+    PAX.loc[:, "Activity Period"].astype(str), format="%Y%m"
+)
 
-df = PAX[['Activity Period', 'Passenger Count']]
-df = df.groupby('Activity Period').sum()
-df.sort_values(by='Activity Period', inplace=True)
+df = PAX[["Activity Period", "Passenger Count"]]
+df = df.groupby("Activity Period").sum()
+df.sort_values(by="Activity Period", inplace=True)
 
 scaler = MinMaxScaler()
 scaler.fit(df)
-df['Passenger Count'] = scaler.transform(df)
+df["Passenger Count"] = scaler.transform(df)
 
 X_raw = df.copy()
 
@@ -33,7 +34,6 @@ print(X_valid.shape, y_valid.shape)
 n_features = 1
 
 with mlflow.start_run():
-
     n_1 = 64
     n_2 = 32
     n_3 = 16
@@ -44,8 +44,10 @@ with mlflow.start_run():
     leak_ratio = 0.1
     drop_ratio = 0.2
 
-    callback_1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=patience)
-    callback_2 = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=300, verbose=0)
+    callback_1 = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=patience)
+    callback_2 = tf.keras.callbacks.ReduceLROnPlateau(
+        monitor="val_loss", factor=0.5, patience=300, verbose=0
+    )
 
     model = Sequential()
 
@@ -84,13 +86,16 @@ with mlflow.start_run():
     model.compile(optimizer=opt, loss=loss_metric)
 
     mlflow.tensorflow.autolog()
-    history = model.fit(X_train, y_train,
-                        validation_data=(X_valid, y_valid),
-                        epochs=epochs,
-                        verbose=1,
-                        batch_size=80,
-                        callbacks=[callback_1, callback_2],
-                        workers=4)
+    history = model.fit(
+        X_train,
+        y_train,
+        validation_data=(X_valid, y_valid),
+        epochs=epochs,
+        verbose=1,
+        batch_size=80,
+        callbacks=[callback_1, callback_2],
+        workers=4,
+    )
 
     # model.save("my_model.keras")
 
