@@ -46,11 +46,11 @@ def plot_validation(model, val_set, y_test, i):
     X_pred = forecasts[i].flatten()
     X_pred_len = len(val_set[i])
 
-    model_output = pd.DataFrame({'date': np.arange(X_pred_len, X_pred_len+len(X_pred)),
+    model_output = pd.DataFrame({'date': np.arange(X_pred_len, X_pred_len+len(X_pred))-1,
                                  'output': X_pred}).set_index("date", drop=True)
     model_input = pd.DataFrame({'date': range(X_pred_len),
                                 'input': val_set[i].flatten()}).set_index("date", drop=True)
-    expected = pd.DataFrame({'date': np.arange(X_pred_len, X_pred_len+len(X_pred)),
+    expected = pd.DataFrame({'date': np.arange(X_pred_len, X_pred_len+len(X_pred))-1,
                             'input': y_test[i].flatten()}).set_index("date", drop=True)
 
     fig, ax = plt.subplots(1, 1, figsize=(12, 6))
@@ -61,7 +61,7 @@ def plot_validation(model, val_set, y_test, i):
     plt.show()
 
 
-def train_val_split(data, n_steps_in, n_steps_out, n_samples):
+def train_val_split(data, n_steps_in: int, n_steps_out:int, n_samples:int):
     """
 
     Args:
