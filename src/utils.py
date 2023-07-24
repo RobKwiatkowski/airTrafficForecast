@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def split_sequence(sequence, n_input: int, n_output: int) -> np.array:
+def split_sequence(sequence, n_input: int, n_output: int):
     """Splits a times series sequence into input and output sequences
 
     Args:
@@ -86,12 +86,8 @@ def train_val_split(data, n_steps_in: int, n_steps_out: int, n_samples: int):
     data_train = data[:split_idx]
     data_valid = data[split_idx:]
 
-    x_train_set, y_train_set = split_sequence(
-        data_train.values, n_steps_in, n_steps_out
-    )
-    x_valid_set, y_valid_set = split_sequence(
-        data_valid.values, n_steps_in, n_steps_out
-    )
+    x_train_set, y_train_set = split_sequence(data_train.values, n_steps_in, n_steps_out)
+    x_valid_set, y_valid_set = split_sequence(data_valid.values, n_steps_in, n_steps_out)
 
     print(
         f"Created {x_train_set.shape[0]} training samples, and {x_valid_set.shape[0]} validation samples."
