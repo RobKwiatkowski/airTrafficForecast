@@ -5,7 +5,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 def prepare_data(data_path: str) -> pd.DataFrame:
-    """Reads the raw data and prepares for later work (min/max scaling)
+    """Reads the raw data, extracts essential columns and scales them.
 
     Args:
         data_path: path to the .csv file with raw data
@@ -60,7 +60,7 @@ def _split_sequence(sequence, n_input: int, n_output: int):
 
 
 def plot_validation(model, val_set, y_test, i):
-    """Plot a line graph showing inputs and forecast vs. expected
+    """Plot a line graph showing inputs and forecast vs. expected values
 
     Args:
         model: keras model object
@@ -68,7 +68,7 @@ def plot_validation(model, val_set, y_test, i):
         y_test: expected values
         i: number of input set
 
-    Returns: axes
+    Returns: matplotlib axes
 
     """
 
@@ -104,19 +104,21 @@ def plot_validation(model, val_set, y_test, i):
     return ax
 
 
-def train_val_split(data, n_steps_in: int, n_steps_out: int, n_samples: int):
-    """ Divide sequence into train and validation sets with given lengths
+def train_val_split(data, n_steps_in: int, n_steps_out: int, val_samples: int):
+    """ Divides sequence into train and validation sets based on size of validation set size.
+    Uses _split_sequence to shape the outputs for use with DNN.
 
     Args:
         data: array of lists
-        n_steps_in:
-        n_steps_out:
-        n_samples:
+        n_steps_in: number of input steps
+        n_steps_out: number of output steps
+        val_samples: number of validation samples
 
     Returns:
+        four arrays
 
     """
-    n_samples = n_samples - 1
+    n_samples = val_samples - 1
     split_idx = len(data) - (n_steps_in + n_steps_out - 1) - n_samples
     data_train = data[:split_idx]
     data_valid = data[split_idx:]
