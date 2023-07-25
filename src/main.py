@@ -1,27 +1,18 @@
 import keras
 import mlflow.keras
-import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
 
-from utils import plot_validation, train_val_split
+from utils import plot_validation, train_val_split, prepare_data
 from models import build_model
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 
-PAX = pd.read_csv("air-traffic-passenger-statistics.csv")
-PAX.loc[:, "Activity Period"] = pd.to_datetime(PAX.loc[:, "Activity Period"].astype(str),
-                                               format="%Y%m")
 
-df = PAX[["Activity Period", "Passenger Count"]]
-df = df.groupby("Activity Period").sum()
-df.sort_values(by="Activity Period", inplace=True)
-
-scaler = MinMaxScaler()
-df["Passenger Count"] = scaler.fit_transform(df)
+PAX = prepare_data("air-traffic-passenger-statistics.csv")
 
 n_steps_in = 12
 n_steps_out = 12
 
-X_train, y_train, X_valid, y_valid = train_val_split(df, n_steps_in, n_steps_out, 15)
+X_train, y_train, X_valid, y_valid = train_val_split(PAX, n_steps_in, n_steps_out, 15)
 
 print(X_train.shape, y_train.shape)
 print(X_valid.shape, y_valid.shape)
@@ -30,7 +21,7 @@ with mlflow.start_run():
 
     loss_metric = "mse"
     lr = 0.002
-    epochs = 4_000
+    epochs = 2_000
     patience = 1_000
     n_features = 1
 
@@ -67,5 +58,7 @@ with mlflow.start_run():
 
     # mlflow.keras.log_model(model, "keras-model")
 
-plot_validation(model, X_valid, y_valid, 0)
-plot_validation(model, X_valid, y_valid, 1)
+plot_1 = plot_validation(model, X_valid, y_valid, 0)
+plt.show()
+plot_2 = plot_validation(model, X_valid, y_valid, 1)
+plt.show()
