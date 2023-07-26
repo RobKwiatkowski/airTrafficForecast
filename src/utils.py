@@ -1,30 +1,34 @@
+""" Utility scripts"""
+import sys
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 
 
-def prepare_data(data_path: str, col1, col2) -> pd.DataFrame:
+def prepare_data(data_path: str, col1, col2, d_format="%Y%m") -> pd.DataFrame:
     """Reads the raw data, extracts essential columns and scales them.
 
     Args:
         data_path: path to the .csv file with raw data
         col1: column with timestamps
         col2: column with values (to be aggregated by col1)
+        d_format: timestamp format, default "%Y%m" (e.g.: 202306)
 
     Returns:
         pandas dataframe with two columns and scaled values
 
     """
     try:
-        df = pd.read_csv(data_path)
-    except FileNotFoundError:
+        data = pd.read_csv(data_path)
+    except FileNotFoundError as exc:
         print('File not found!')
-        raise FileNotFoundError
+        raise FileNotFoundError from exc
 
-    df[col1] = pd.to_datetime(df[col1].astype(str), format="%Y%m")
+    data[col1] = pd.to_datetime(data[col1].astype(str), format=d_format)
 
-    df_subset = df[[col1, col2]]
+    df_subset = data[[col1, col2]]
     df_subset = df_subset.groupby(col1).sum()
     df_subset.sort_values(by=col1, inplace=True)
 
@@ -48,11 +52,12 @@ def _split_sequence(sequence, n_input: int, n_output: int):
     """
     try:
         if len(sequence) < n_input + n_output:
-            raise ValueError
+            print("sequence to short")
+            sys.exit()
     except ValueError:
-        exit('sequence too short - aborting operation')
+        sys.exit('sequence too short - aborting operation')
 
-    x, y = [], []
+    inputs, outputs = [], []
     for i, _ in enumerate(sequence):
         input_end = i + n_input
         output_end = input_end + n_output - 1
@@ -61,9 +66,9 @@ def _split_sequence(sequence, n_input: int, n_output: int):
             break
 
         seq_x, seq_y = sequence[i:input_end], sequence[input_end - 1: output_end]
-        x.append(seq_x)
-        y.append(seq_y)
-    return np.array(x), np.array(y)
+        inputs.append(seq_x)
+        outputs.append(seq_y)
+    return np.array(inputs), np.array(outputs)
 
 
 def plot_validation(model, val_set, y_test, i):
@@ -84,25 +89,25 @@ def plot_validation(model, val_set, y_test, i):
 
     forecasts = model.predict(val_set, verbose=0)
 
-    X_pred = forecasts[i].flatten()
-    X_pred_len = len(val_set[i])
+    x_pred = forecasts[i].flatten()
+    x_pred_len = len(val_set[i])
 
     model_output = pd.DataFrame(
-        {"date": np.arange(X_pred_len, X_pred_len + len(X_pred)) - 1, "output": X_pred}
+        {"date": np.arange(x_pred_len, x_pred_len + len(x_pred)) - 1, "output": x_pred}
     ).set_index("date", drop=True)
 
     model_input = pd.DataFrame(
-        {"date": range(X_pred_len), "input": val_set[i].flatten()}
+        {"date": range(x_pred_len), "input": val_set[i].flatten()}
     ).set_index("date", drop=True)
 
     expected = pd.DataFrame(
         {
-            "date": np.arange(X_pred_len, X_pred_len + len(X_pred)) - 1,
+            "date": np.arange(x_pred_len, x_pred_len + len(x_pred)) - 1,
             "input": y_test[i].flatten(),
         }
     ).set_index("date", drop=True)
 
-    fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+    _, ax = plt.subplots(1, 1, figsize=(12, 6))
     ax.plot(model_output, label="predicted", c="r")
     ax.plot(model_input, label="input")
     ax.plot(expected, label="expected", c="gray", ls="--")
@@ -134,8 +139,7 @@ def train_val_split(data, n_steps_in: int, n_steps_out: int, val_samples: int):
     x_valid_set, y_valid_set = _split_sequence(data_valid.values, n_steps_in, n_steps_out)
 
     print(
-        f"Created {x_train_set.shape[0]} training samples, and {x_valid_set.shape[0]} validation samples."
+        f"Created {x_train_set.shape[0]} training samples, "
+        f"and {x_valid_set.shape[0]} validation samples."
     )
     return x_train_set, y_train_set, x_valid_set, y_valid_set
-
-
