@@ -23,7 +23,7 @@ def prepare_data(data_path: str, col1, col2, d_format="%Y%m") -> pd.DataFrame:
     try:
         data = pd.read_csv(data_path)
     except FileNotFoundError as exc:
-        print('File not found!')
+        print("File not found!")
         raise FileNotFoundError from exc
 
     data[col1] = pd.to_datetime(data[col1].astype(str), format=d_format)
@@ -37,7 +37,7 @@ def prepare_data(data_path: str, col1, col2, d_format="%Y%m") -> pd.DataFrame:
     return df_subset
 
 
-def _split_sequence(sequence, n_input: int, n_output: int):
+def _split_sequence(sequence: (np.array | list), n_input: int, n_output: int) -> np.array:
     """Splits a times series sequence into input and output sequences of given lengths
     [1,2,3,4,5] for (seq, 3, 2) gives --> [[1,2,3], [2,3,4]] and [[3,4], [4,5]]
 
@@ -55,7 +55,7 @@ def _split_sequence(sequence, n_input: int, n_output: int):
             print("sequence to short")
             sys.exit()
     except ValueError:
-        sys.exit('sequence too short - aborting operation')
+        sys.exit("sequence too short - aborting operation")
 
     inputs, outputs = [], []
     for i, _ in enumerate(sequence):
@@ -65,7 +65,7 @@ def _split_sequence(sequence, n_input: int, n_output: int):
         if output_end > len(sequence):
             break
 
-        seq_x, seq_y = sequence[i:input_end], sequence[input_end - 1: output_end]
+        seq_x, seq_y = sequence[i:input_end], sequence[input_end - 1 : output_end]
         inputs.append(seq_x)
         outputs.append(seq_y)
     return np.array(inputs), np.array(outputs)
@@ -107,17 +107,17 @@ def plot_validation(model, val_set, y_test, i):
         }
     ).set_index("date", drop=True)
 
-    _, ax = plt.subplots(1, 1, figsize=(12, 6))
-    ax.plot(model_output, label="predicted", c="r")
-    ax.plot(model_input, label="input")
-    ax.plot(expected, label="expected", c="gray", ls="--")
-    ax.legend()
+    _, axis = plt.subplots(1, 1, figsize=(12, 6))
+    axis.plot(model_output, label="predicted", c="r")
+    axis.plot(model_input, label="input")
+    axis.plot(expected, label="expected", c="gray", ls="--")
+    axis.legend()
 
-    return ax
+    return axis
 
 
 def train_val_split(data, n_steps_in: int, n_steps_out: int, val_samples: int):
-    """ Divides sequence into train and validation sets based on size of validation set size.
+    """Divides sequence into train and validation sets based on size of validation set size.
     Uses _split_sequence to shape the outputs for use with DNN.
 
     Args:
