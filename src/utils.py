@@ -37,7 +37,7 @@ def prepare_data(data_path: str, col1, col2, d_format="%Y%m") -> pd.DataFrame:
     return df_subset
 
 
-def _split_sequence(sequence: (np.array | list), n_input: int, n_output: int) -> np.array:
+def _split_sequence(sequence, n_input: int, n_output: int) -> np.array:
     """Splits a times series sequence into input and output sequences of given lengths
     [1,2,3,4,5] for (seq, 3, 2) gives --> [[1,2,3], [2,3,4]] and [[3,4], [4,5]]
 
@@ -117,7 +117,7 @@ def plot_validation(model, val_set, y_test, i):
 
 
 def train_val_split(
-    data: (np.array | list), n_steps_in: int, n_steps_out: int, val_samples: int
+    data, n_steps_in: int, n_steps_out: int, val_samples: int
 ) -> np.array:
     """Divides sequence into train and validation sets based on size of validation set size.
     Uses _split_sequence to shape the outputs for use with DNN.
