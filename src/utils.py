@@ -16,7 +16,11 @@ def prepare_data(data_path: str, col1, col2) -> pd.DataFrame:
         pandas dataframe with two columns and scaled values
 
     """
-    df = pd.read_csv(data_path)
+    try:
+        df = pd.read_csv(data_path)
+    except FileNotFoundError:
+        raise Exception("Problem with reading source file.")
+
     df[col1] = pd.to_datetime(df[col1].astype(str), format="%Y%m")
 
     df_subset = df[[col1, col2]]
