@@ -2,13 +2,12 @@
 """
 
 import keras
-import mlflow.keras
 import matplotlib.pyplot as plt
-
+import mlflow.keras
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
-from utils import plot_validation, train_val_split, prepare_data
-from models import build_model
 
+from models import build_model
+from utils import plot_validation, prepare_data, train_val_split
 
 PAX = prepare_data(
     data_path="air-traffic-passenger-statistics.csv", col1="Activity Period", col2="Passenger Count"
@@ -17,7 +16,10 @@ PAX = prepare_data(
 N_STEP_IN = 12
 N_STEPS_OUT = 12
 
-X_train, y_train, X_valid, y_valid = train_val_split(PAX, N_STEP_IN, N_STEPS_OUT, 15)
+X_train, y_train, X_valid, y_valid = train_val_split(data=PAX,
+                                                     n_steps_in=N_STEP_IN,
+                                                     n_steps_out=N_STEPS_OUT,
+                                                     val_samples=15)
 
 print(X_train.shape, y_train.shape)
 print(X_valid.shape, y_valid.shape)
