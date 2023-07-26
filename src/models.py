@@ -1,4 +1,7 @@
-from keras.layers import LSTM, Dense, Dropout, LeakyReLU, RepeatVector, TimeDistributed
+"""Module building DNN model
+"""
+from keras.layers import (LSTM, Dense, Dropout, LeakyReLU, RepeatVector,
+                          TimeDistributed)
 from keras.models import Sequential
 
 
