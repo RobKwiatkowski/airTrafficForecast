@@ -1,9 +1,9 @@
 """ Utility scripts"""
 import sys
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 
 
@@ -116,7 +116,9 @@ def plot_validation(model, val_set, y_test, i):
     return axis
 
 
-def train_val_split(data, n_steps_in: int, n_steps_out: int, val_samples: int):
+def train_val_split(
+    data: (np.array | list), n_steps_in: int, n_steps_out: int, val_samples: int
+) -> np.array:
     """Divides sequence into train and validation sets based on size of validation set size.
     Uses _split_sequence to shape the outputs for use with DNN.
 
