@@ -7,7 +7,9 @@ from models import build_model
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 
 
-PAX = prepare_data("air-traffic-passenger-statistics.csv")
+PAX = prepare_data(data_path="air-traffic-passenger-statistics.csv",
+                   col1="Activity Period",
+                   col2="Passenger Count")
 
 n_steps_in = 12
 n_steps_out = 12

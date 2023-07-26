@@ -4,25 +4,27 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 
 
-def prepare_data(data_path: str) -> pd.DataFrame:
+def prepare_data(data_path: str, col1, col2) -> pd.DataFrame:
     """Reads the raw data, extracts essential columns and scales them.
 
     Args:
         data_path: path to the .csv file with raw data
+        col1: column with timestamps
+        col2: column with values (to be aggregated by col1)
 
     Returns:
         pandas dataframe with two columns and scaled values
 
     """
     df = pd.read_csv(data_path)
-    df["Activity Period"] = pd.to_datetime(df["Activity Period"].astype(str), format="%Y%m")
+    df[col1] = pd.to_datetime(df[col1].astype(str), format="%Y%m")
 
-    df_subset = df[["Activity Period", "Passenger Count"]]
-    df_subset = df_subset.groupby("Activity Period").sum()
-    df_subset.sort_values(by="Activity Period", inplace=True)
+    df_subset = df[[col1, col2]]
+    df_subset = df_subset.groupby(col1).sum()
+    df_subset.sort_values(by=col1, inplace=True)
 
     scaler = MinMaxScaler()
-    df_subset["Passenger Count"] = scaler.fit_transform(df_subset)
+    df_subset[col2] = scaler.fit_transform(df_subset)
     return df_subset
 
 
