@@ -19,7 +19,8 @@ def prepare_data(data_path: str, col1, col2) -> pd.DataFrame:
     try:
         df = pd.read_csv(data_path)
     except FileNotFoundError:
-        raise Exception("Problem with reading source file.")
+        print('File not found!')
+        raise FileNotFoundError
 
     df[col1] = pd.to_datetime(df[col1].astype(str), format="%Y%m")
 
